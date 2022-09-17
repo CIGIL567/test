@@ -1,0 +1,126 @@
+import re
+import tkinter as tk
+import tkinter.ttk as ttk
+####file=r"text file way"
+file2=open(file)
+mytext=file2.read()
+name= r"([А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+)|([А-ЯЁ][а-яё]+\s[А-ЯЁ]\.*\s*[А-ЯЁ]\.*)|([А-ЯЁ]\.*\s*[А-ЯЁ]\.*\s[А-ЯЁ][а-яё]+)"
+date=r"((\d{2}\.*\s*\d{2}\.*\s*\d{4}|d{2})|(\d\.*\s*\d{2}\.*\s*\d{4}|d{2})|(\d{2}\.*\s*\d\.*\s*\d{4}|d{2})|(\d\.*\s*\d\.*\s*\d{4}|d{2}))|((\d{4}\.*\s*\d{2}\.*\s*\d{2}\.*)|(\d{4}\.*\s*\d\.*\s*\d{2}\.*)|(\d{4}\.*\s*\d{2}\.*\s*\d\.*)|(\d{4}\.*\s*\d\.*\s*\d\.*))"
+skills=r"[A-Za-z\+*|#*]+\.*"
+age_person=r'\s\d{2}\sгод*\w+|\s\d{2}\sлет'
+match_age_person=list(re.findall(age_person,mytext))
+g='0123456789'        
+new_ages1=[]
+new_ages2=[]
+for t in match_age_person:
+    for y in t:
+        if y in g:
+            new_ages1.append(y)
+m=0
+for h in new_ages1:
+    try:
+        new_ages2.append(int(new_ages1[m]+new_ages1[m+1]))
+        m+=2
+    except:pass
+matchName=list(re.findall(name,mytext))#Имя
+matchAge=list(re.findall(date,mytext))#Дата
+matchSkills=list((re.findall(skills,mytext)))#Языки
+def rk(x):
+    return [s for y in x for s in y if s!=''] #удаление лишних элементов
+matchName,matchAge=map(rk,(matchName,matchAge))
+yu=0
+c=[]
+try:
+    for t in matchAge:    
+        if t==matchAge[yu+1]:
+            c.append(t)       
+        yu+=1
+except:pass
+name=matchName
+date=c
+lang=matchSkills
+lang1=[]
+y=0
+u=0
+for t in lang:      
+    y+=1
+    u+=1
+    if '.'in t:        
+        lang1.append(lang[y-u:][:u])
+        u=0
+ru='C#. JavaScript. Python. Java. TypeScript. C++. C.'
+d=0
+aa=[]
+for y in lang1:              # этот цикл ОТВЕЧАЕТ ЗА ОЦЕНКУ ЯЗЫКОВ
+    d=0
+    for t in y:
+        if t in ru:d=d+4
+        else:d=d+2
+        if '.'in t:
+            aa.append(d)
+superlist=[]
+y=0
+try:
+    for g in name:                  
+        superlist.append(name[y])
+        superlist.append(date[y])
+        superlist.append(lang1[y])
+        superlist.append(aa[y])
+        superlist.append(new_ages2[y])
+        y+=1
+except:pass
+list1=[]
+y=1
+for t in superlist:                                              
+    if y%5==0:
+        list1.append(list(superlist[y-5:y]))                
+    y+=1
+class Table(tk.Frame):
+    def __init__(self, parent=None, headings=tuple(), rows=tuple()):
+        super().__init__(parent)
+        table = ttk.Treeview(self, show="headings", selectmode="browse")
+        table["columns"]=headings
+        table["displaycolumns"]=headings
+        for head in headings:
+            table.heading(head, text=head, anchor=tk.CENTER)
+            table.column(head, anchor=tk.CENTER)
+        for row in rows:
+            table.insert('', tk.END, values=tuple(row))
+        scrolltable = tk.Scrollbar(self, command=table.yview)
+        table.configure(yscrollcommand=scrolltable.set)
+        scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
+        table.pack(expand=tk.YES, fill=tk.BOTH)
+        
+requirements_Google={'age':20,'languages':['C#', 'C++'],
+                     'title':'Google'}
+requirements_Yandex={'age':22,'languages':['JavaScript'],
+                     'title':'Yandex'}
+requirements_Dell_Technologies={'age':30,'languages':['Java'],
+                                'title':'Dell_Technologies'}
+requirements_SAP={'age':24,'languages':['Ruby', 'SQL'],
+                  'title':'SAP'}
+requirements_Accenture={'age':36,'languages':['Python', 'C++'],
+                        'title':'Accenture'}
+
+requirements_Firms=[requirements_Google,requirements_Yandex,
+                    requirements_Dell_Technologies,requirements_SAP,
+                    requirements_Accenture]
+slovar={}
+for y in list1:    
+    new=[]
+    for t in requirements_Firms:   
+        if y[-1]>=t['age'] and y[-1]<=70:
+            if ''.join(t['languages']) in ''.join(y[-3]):
+               new.append(t['title'])
+               slovar[y[0]]=new
+        else:continue
+for g in list1:
+    for t in slovar:
+        if t==g[0]:g.append(slovar[t])        
+root = tk.Tk()
+table= Table(root, headings=('Name','Date','Languages','Points','Age','firms'), rows=(list1))
+table.pack(expand=tk.YES, fill=tk.BOTH)
+root.mainloop()
+
+
+
